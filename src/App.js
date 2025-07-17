@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import MainLayout from './components/layout/MainLayout';
 import Login from './components/auth/Login';
+import { AppProvider } from './context/AppContext';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -27,13 +28,15 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {isAuthenticated ? (
-        <MainLayout onLogout={handleLogout} />
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
-    </div>
+    <AppProvider>
+      <div className="App">
+        {isAuthenticated ? (
+          <MainLayout onLogout={handleLogout} />
+        ) : (
+          <Login onLogin={handleLogin} />
+        )}
+      </div>
+    </AppProvider>
   );
 }
 

@@ -1,0 +1,446 @@
+import React, { useState } from 'react';
+import { 
+  Map, 
+  Route, 
+  Clock, 
+  MapPin, 
+  Plus, 
+  Search, 
+  Filter, 
+  Navigation,
+  Users,
+  Eye,
+  Edit,
+  Play,
+  Pause,
+  CheckCircle,
+  X
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+
+const DeliveryRoutes = () => {
+  const { 
+    deliveryRoutes, 
+    addDeliveryRoute, 
+    updateDeliveryRoute, 
+    deleteDeliveryRoute,
+    getAvailableDrivers,
+    deliveryStaff,
+    documents,
+    getPendingDocuments
+  } = useApp();
+
+  const [activeTab, setActiveTab] = useState('active');
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const [newRouteData, setNewRouteData] = useState({
+    name: '',
+    zone: 'Centro',
+    driverId: '',
+    vehicle: 'Motocicleta',
+    startTime: '',
+    estimatedDuration: '',
+    priority: 'medium',
+    orders: []
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewRouteData({
+      ...newRouteData,
+      [name]: value
+    });
+  };
+
+  // Crear nueva ruta
+  const handleCreateRoute = () => {
+    const driver = deliveryStaff.find(s => s.id === parseInt(newRouteData.driverId));
+    if (!driver) {
+      alert('Seleccione un repartidor válido');
+      return;
+    }
+
+    const newRoute = addDeliveryRoute({
+      ...newRouteData,
+      driver: driver.name,
+      totalStops: newRouteData.orders.length,
+      distance: (Math.random() * 20 + 10).toFixed(1) + ' km'
+    });
+    
+    setShowCreateModal(false);
+    setNewRouteData({
+      name: '',
+      zone: 'Centro',
+      driverId: '',
+      vehicle: 'Motocicleta',
+      startTime: '',
+      estimatedDuration: '',
+      priority: 'medium',
+      orders: []
+    });
+  };
+
+  // Actualizar estado de ruta
+  const handleUpdateRouteStatus = (routeId, newStatus) => {
+    updateDeliveryRoute(routeId, { status: newStatus });
+  };
+
+  // Eliminar ruta
+  const handleDeleteRoute = (routeId) => {
+    if (window.confirm('¿Está seguro de eliminar esta ruta?')) {
+      deleteDeliveryRoute(routeId);
+    }
+  };
+
+  // Datos de estadísticas dinámicas
+  const getStats = () => {
+    const activeRoutes = deliveryRoutes.filter(r => r.status === 'active').length;
+    const pendingDeliveries = deliveryRoutes.reduce((sum, route) => {
+      return sum + (route.totalStops - route.completedStops);
+    }, 0);
+    const activeDrivers = deliveryStaff.filter(s => s.status !== 'offline').length;
+    const avgTime = deliveryRoutes.length > 0 
+      ? deliveryRoutes.reduce((sum, route) => {
+          const duration = parseFloat(route.estimatedDuration?.replace(/[^\d.]/g, '') || 0);
+          return sum + duration;
+        }, 0) / deliveryRoutes.length
+      : 0;
+
+    return [
+      { label: 'Rutas Activas', value: activeRoutes.toString(), icon: <Route className="text-blue-600" />, color: 'bg-blue-50' },
+      { label: 'Entregas Pendientes', value: pendingDeliveries.toString(), icon: <MapPin className="text-orange-600" />, color: 'bg-orange-50' },
+      { label: 'Repartidores Activos', value: activeDrivers.toString(), icon: <Users className="text-green-600" />, color: 'bg-green-50' },
+      { label: 'Tiempo Promedio', value: avgTime > 0 ? avgTime.toFixed(1) + 'h' : '0h', icon: <Clock className="text-purple-600" />, color: 'bg-purple-50' }
+    ];
+  };
+
+  const stats = getStats();
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'planned': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-gray-100 text-gray-800';
+      case 'delayed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'active': return 'En Curso';
+      case 'planned': return 'Planificada';
+      case 'completed': return 'Completada';
+      case 'delayed': return 'Retrasada';
+      default: return 'Desconocido';
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const filteredRoutes = deliveryRoutes.filter(route => {
+    if (activeTab === 'active') return route.status === 'active';
+    if (activeTab === 'planned') return route.status === 'planned';
+    if (activeTab === 'completed') return route.status === 'completed';
+    return true;
+  });
+
+  const zones = ['Centro', 'Norte', 'Sur', 'Este', 'Oeste'];
+  const vehicles = ['Motocicleta', 'Bicicleta', 'Auto'];
+  const priorities = [
+    { value: 'high', label: 'Alta' },
+    { value: 'medium', label: 'Media' },
+    { value: 'low', label: 'Baja' }
+  ];
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Rutas de Entrega</h1>
+          <p className="text-gray-600 mt-1">Gestiona y optimiza las rutas de tus repartidores</p>
+        </div>
+        <div className="flex space-x-3">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700">
+            <Plus size={20} className="mr-2" />
+            Nueva Ruta
+          </button>
+          <button className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-700">
+            <Navigation size={20} className="mr-2" />
+            Optimizar Rutas
+          </button>
+        </div>
+      </div>
+
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        {stats.map((stat, index) => (
+          <div key={index} className={`${stat.color} rounded-lg p-6 border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-white">
+                {stat.icon}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Panel Principal de Rutas */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow-md">
+            {/* Tabs y Filtros */}
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setActiveTab('active')}
+                    className={`pb-2 border-b-2 text-sm font-medium ${
+                      activeTab === 'active'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Activas (1)
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('planned')}
+                    className={`pb-2 border-b-2 text-sm font-medium ${
+                      activeTab === 'planned'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Planificadas (1)
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('completed')}
+                    className={`pb-2 border-b-2 text-sm font-medium ${
+                      activeTab === 'completed'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Completadas (1)
+                  </button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Buscar ruta..."
+                      className="pl-10 pr-4 py-2 border rounded-lg text-sm"
+                    />
+                  </div>
+                  <button className="p-2 border rounded-lg hover:bg-gray-50">
+                    <Filter size={16} className="text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Lista de Rutas */}
+            <div className="divide-y">
+              {filteredRoutes.map((route) => (
+                <div 
+                  key={route.id} 
+                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setSelectedRoute(route)}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Route className="text-blue-600" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{route.name}</h3>
+                        <p className="text-sm text-gray-600">{route.driver} • {route.vehicle}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(route.status)}`}>
+                        {getStatusText(route.status)}
+                      </span>
+                      <span className={`text-xs font-medium ${getPriorityColor(route.priority)}`}>
+                        ● {route.priority.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                    <div className="flex items-center space-x-2">
+                      <MapPin size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">{route.completedDeliveries}/{route.deliveries} entregas</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">{route.estimatedTime}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Route size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">{route.distance}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Fuel size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">{route.fuel}</span>
+                    </div>
+                  </div>
+
+                  {/* Barra de progreso */}
+                  <div className="mb-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-gray-600">Progreso de entrega</span>
+                      <span className="text-xs text-gray-600">{route.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                        style={{ width: `${route.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">{route.startTime} - {route.endTime}</span> • Zona {route.zone}
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <button className="p-1 text-gray-400 hover:text-blue-600">
+                        <Eye size={16} />
+                      </button>
+                      <button className="p-1 text-gray-400 hover:text-green-600">
+                        <Edit size={16} />
+                      </button>
+                      <button className="p-1 text-gray-400 hover:text-gray-600">
+                        <MoreHorizontal size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Panel de Detalles/Mapa */}
+        <div className="lg:col-span-1">
+          {selectedRoute ? (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Detalles de Ruta</h3>
+                <button 
+                  onClick={() => setSelectedRoute(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">{selectedRoute.name}</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Conductor:</span>
+                      <span className="text-sm font-medium">{selectedRoute.driver}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Vehículo:</span>
+                      <span className="text-sm font-medium">{selectedRoute.vehicle}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Zona:</span>
+                      <span className="text-sm font-medium">{selectedRoute.zone}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Paradas ({selectedRoute.locations.length})</h4>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {selectedRoute.locations.map((location, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          location.status === 'completed' 
+                            ? 'bg-green-100 text-green-700' 
+                            : location.status === 'in-progress'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {location.address}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-xs text-gray-600">{location.time}</p>
+                            {location.status === 'completed' && (
+                              <CheckCircle size={12} className="text-green-600" />
+                            )}
+                            {location.status === 'in-progress' && (
+                              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex space-x-2">
+                    {selectedRoute.status === 'planned' && (
+                      <button className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm hover:bg-green-700 flex items-center justify-center">
+                        <Play size={14} className="mr-1" />
+                        Iniciar
+                      </button>
+                    )}
+                    {selectedRoute.status === 'active' && (
+                      <button className="flex-1 bg-orange-600 text-white py-2 px-3 rounded-lg text-sm hover:bg-orange-700 flex items-center justify-center">
+                        <Pause size={14} className="mr-1" />
+                        Pausar
+                      </button>
+                    )}
+                    <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-700 flex items-center justify-center">
+                      <Navigation size={14} className="mr-1" />
+                      Ver Mapa
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-center">
+                <Map size={48} className="mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Selecciona una Ruta</h3>
+                <p className="text-gray-600 text-sm">
+                  Haz clic en una ruta para ver sus detalles y ubicaciones
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeliveryRoutes;

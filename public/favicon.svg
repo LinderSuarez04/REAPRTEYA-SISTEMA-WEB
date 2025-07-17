@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo circular -->
+  <circle cx="50" cy="50" r="45" fill="url(#grad1)" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Camión principal -->
+  <rect x="20" y="35" width="35" height="18" fill="white" rx="3"/>
+  
+  <!-- Cabina del camión -->
+  <rect x="55" y="30" width="15" height="23" fill="white" rx="2"/>
+  
+  <!-- Ventana de la cabina -->
+  <rect x="57" y="32" width="11" height="8" fill="#2563eb" rx="1"/>
+  
+  <!-- Ruedas -->
+  <circle cx="28" cy="58" r="5" fill="#374151"/>
+  <circle cx="28" cy="58" r="3" fill="#6b7280"/>
+  <circle cx="62" cy="58" r="5" fill="#374151"/>
+  <circle cx="62" cy="58" r="3" fill="#6b7280"/>
+  
+  <!-- Detalles del camión -->
+  <rect x="22" y="37" width="8" height="3" fill="#2563eb" rx="1"/>
+  <rect x="22" y="42" width="12" height="3" fill="#2563eb" rx="1"/>
+  <rect x="22" y="47" width="10" height="3" fill="#2563eb" rx="1"/>
+  
+  <!-- Líneas de velocidad -->
+  <line x1="10" y1="25" x2="18" y2="25" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="30" x2="18" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="8" y1="35" x2="18" y2="35" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Texto "Y" estilizado -->
+  <text x="50" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Y</text>
+</svg>

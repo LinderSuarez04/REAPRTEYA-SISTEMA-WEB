@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Truck } from 'lucide-react';
+import ForgotPassword from './ForgotPassword';
 
 const Login = ({ onLogin }) => {
   const [dni, setDni] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,6 +22,11 @@ const Login = ({ onLogin }) => {
     setError('');
     onLogin();
   };
+
+  // Si se debe mostrar la pantalla de olvidaste contraseña
+  if (showForgotPassword) {
+    return <ForgotPassword onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -71,7 +78,7 @@ const Login = ({ onLogin }) => {
           <div className="text-center">
             <button 
               type="button"
-              onClick={() => alert('Funcionalidad de recuperación de contraseña (por implementar)')}
+              onClick={() => setShowForgotPassword(true)}
               className="text-sm text-blue-600 hover:text-blue-500 underline cursor-pointer bg-transparent border-none p-0"
             >
               ¿Olvidaste tu contraseña?
@@ -87,15 +94,6 @@ const Login = ({ onLogin }) => {
             </button>
           </div>
         </form>
-        
-        <div className="mt-4">
-          <button
-            type="button"
-            className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"
-          >
-            Crear Cuenta
-          </button>
-        </div>
       </div>
     </div>
   );

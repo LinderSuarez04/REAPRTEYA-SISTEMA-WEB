@@ -4,8 +4,9 @@ import {
   Truck, 
   Users, 
   FileText,
-  Menu,
-  X,
+  FileSpreadsheet,
+  Map,
+  Settings,
   LogOut
 } from 'lucide-react';
 
@@ -20,6 +21,11 @@ const Sidebar = ({ onMenuChange, isSidebarOpen, toggleSidebar, onLogout }) => {
       key: 'dashboard' 
     },
     { 
+      icon: <FileSpreadsheet />, 
+      label: 'Hojas de Reparto', 
+      key: 'delivery-sheets' 
+    },
+    { 
       icon: <Truck />, 
       label: 'Gestión de Entregas', 
       key: 'deliveries' 
@@ -30,9 +36,19 @@ const Sidebar = ({ onMenuChange, isSidebarOpen, toggleSidebar, onLogout }) => {
       key: 'delivery-staff' 
     },
     { 
+      icon: <Map />, 
+      label: 'Rutas de Entrega', 
+      key: 'delivery-routes' 
+    },
+    { 
       icon: <FileText />, 
       label: 'Reportes', 
       key: 'reports' 
+    },
+    { 
+      icon: <Settings />, 
+      label: 'Configuración', 
+      key: 'settings' 
     }
   ];
 
@@ -46,14 +62,6 @@ const Sidebar = ({ onMenuChange, isSidebarOpen, toggleSidebar, onLogout }) => {
 
   return (
     <>
-      {/* Botón hamburguesa para móviles */}
-      <button 
-        className={`fixed top-4 ${isSidebarOpen ? 'left-64' : 'left-4'} z-50 p-2 bg-gray-800 text-white rounded-md lg:hidden transition-all duration-300`}
-        onClick={toggleSidebar}
-      >
-        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
       {/* Overlay para cerrar sidebar en móviles */}
       {isSidebarOpen && (
         <div 
@@ -69,7 +77,7 @@ const Sidebar = ({ onMenuChange, isSidebarOpen, toggleSidebar, onLogout }) => {
           overflow-y-auto z-40 transition-transform duration-300 ease-in-out`}
       >
         <div className="mb-8 text-2xl font-bold text-center py-4 border-b border-gray-700">
-          Sistema de Entregas
+          ReparteYA
         </div>
         
         <nav className="mt-4">
@@ -93,7 +101,7 @@ const Sidebar = ({ onMenuChange, isSidebarOpen, toggleSidebar, onLogout }) => {
         {/* Pie de sidebar con información adicional */}
         <div className="absolute bottom-12 left-0 w-full p-4 border-t border-gray-700 text-center">
           <p className="text-xs text-gray-400">
-            © 2024 Sistema de Entregas
+            © 2024 ReparteYA
           </p>
         </div>
         

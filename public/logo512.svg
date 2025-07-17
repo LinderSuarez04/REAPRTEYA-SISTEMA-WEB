@@ -1,0 +1,40 @@
+<!-- Este es un archivo temporal para generar los iconos PNG -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo circular -->
+  <circle cx="256" cy="256" r="230" fill="url(#grad1)" stroke="#1e40af" stroke-width="10"/>
+  
+  <!-- Camión principal -->
+  <rect x="102" y="179" width="179" height="90" fill="white" rx="15"/>
+  
+  <!-- Cabina del camión -->
+  <rect x="282" y="154" width="77" height="118" fill="white" rx="10"/>
+  
+  <!-- Ventana de la cabina -->
+  <rect x="292" y="164" width="56" height="41" fill="#2563eb" rx="5"/>
+  
+  <!-- Ruedas -->
+  <circle cx="143" cy="297" r="26" fill="#374151"/>
+  <circle cx="143" cy="297" r="16" fill="#6b7280"/>
+  <circle cx="318" cy="297" r="26" fill="#374151"/>
+  <circle cx="318" cy="297" r="16" fill="#6b7280"/>
+  
+  <!-- Detalles del camión -->
+  <rect x="112" y="189" width="41" height="15" fill="#2563eb" rx="5"/>
+  <rect x="112" y="215" width="61" height="15" fill="#2563eb" rx="5"/>
+  <rect x="112" y="241" width="51" height="15" fill="#2563eb" rx="5"/>
+  
+  <!-- Líneas de velocidad -->
+  <line x1="51" y1="128" x2="92" y2="128" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <line x1="61" y1="154" x2="92" y2="154" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <line x1="41" y1="179" x2="92" y2="179" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- Texto "Y" estilizado -->
+  <text x="256" y="410" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">Y</text>
+</svg>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Convertir SVG a PNG</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .icon-preview { display: flex; align-items: center; margin: 20px 0; }
+        .icon-preview img { margin-right: 20px; border: 1px solid #ddd; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Iconos ReparteYA</h1>
+        
+        <div class="icon-preview">
+            <img id="favicon" width="32" height="32">
+            <div>
+                <h3>Favicon (32x32)</h3>
+                <button onclick="generateIcon('favicon', 32)">Generar favicon.png</button>
+            </div>
+        </div>
+        
+        <div class="icon-preview">
+            <img id="logo192" width="192" height="192">
+            <div>
+                <h3>Logo 192x192</h3>
+                <button onclick="generateIcon('logo192', 192)">Generar logo192.png</button>
+            </div>
+        </div>
+        
+        <div class="icon-preview">
+            <img id="logo512" width="512" height="512">
+            <div>
+                <h3>Logo 512x512</h3>
+                <button onclick="generateIcon('logo512', 512)">Generar logo512.png</button>
+            </div>
+        </div>
+        
+        <button onclick="generateAllIcons()">Generar Todos los Iconos</button>
+    </div>
+    
+    <script>
+        const svgStrings = {
+            favicon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="45" fill="url(#grad1)" stroke="#1e40af" stroke-width="2"/>
+  <rect x="20" y="35" width="35" height="18" fill="white" rx="3"/>
+  <rect x="55" y="30" width="15" height="23" fill="white" rx="2"/>
+  <rect x="57" y="32" width="11" height="8" fill="#2563eb" rx="1"/>
+  <circle cx="28" cy="58" r="5" fill="#374151"/>
+  <circle cx="28" cy="58" r="3" fill="#6b7280"/>
+  <circle cx="62" cy="58" r="5" fill="#374151"/>
+  <circle cx="62" cy="58" r="3" fill="#6b7280"/>
+  <rect x="22" y="37" width="8" height="3" fill="#2563eb" rx="1"/>
+  <rect x="22" y="42" width="12" height="3" fill="#2563eb" rx="1"/>
+  <rect x="22" y="47" width="10" height="3" fill="#2563eb" rx="1"/>
+  <line x1="10" y1="25" x2="18" y2="25" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="30" x2="18" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <line x1="8" y1="35" x2="18" y2="35" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <text x="50" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">Y</text>
+</svg>`,
+            logo192: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="96" cy="96" r="86" fill="url(#grad1)" stroke="#1e40af" stroke-width="4"/>
+  <rect x="38" y="67" width="67" height="34" fill="white" rx="6"/>
+  <rect x="106" y="58" width="29" height="44" fill="white" rx="4"/>
+  <rect x="110" y="62" width="21" height="15" fill="#2563eb" rx="2"/>
+  <circle cx="54" cy="111" r="10" fill="#374151"/>
+  <circle cx="54" cy="111" r="6" fill="#6b7280"/>
+  <circle cx="119" cy="111" r="10" fill="#374151"/>
+  <circle cx="119" cy="111" r="6" fill="#6b7280"/>
+  <rect x="42" y="71" width="15" height="6" fill="#2563eb" rx="2"/>
+  <rect x="42" y="81" width="23" height="6" fill="#2563eb" rx="2"/>
+  <rect x="42" y="91" width="19" height="6" fill="#2563eb" rx="2"/>
+  <line x1="19" y1="48" x2="35" y2="48" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <line x1="23" y1="58" x2="35" y2="58" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <line x1="15" y1="67" x2="35" y2="67" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <text x="96" y="153" font-family="Arial, sans-serif" font-size="27" font-weight="bold" fill="white" text-anchor="middle">Y</text>
+</svg>`,
+            logo512: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="230" fill="url(#grad1)" stroke="#1e40af" stroke-width="10"/>
+  <rect x="102" y="179" width="179" height="90" fill="white" rx="15"/>
+  <rect x="282" y="154" width="77" height="118" fill="white" rx="10"/>
+  <rect x="292" y="164" width="56" height="41" fill="#2563eb" rx="5"/>
+  <circle cx="143" cy="297" r="26" fill="#374151"/>
+  <circle cx="143" cy="297" r="16" fill="#6b7280"/>
+  <circle cx="318" cy="297" r="26" fill="#374151"/>
+  <circle cx="318" cy="297" r="16" fill="#6b7280"/>
+  <rect x="112" y="189" width="41" height="15" fill="#2563eb" rx="5"/>
+  <rect x="112" y="215" width="61" height="15" fill="#2563eb" rx="5"/>
+  <rect x="112" y="241" width="51" height="15" fill="#2563eb" rx="5"/>
+  <line x1="51" y1="128" x2="92" y2="128" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <line x1="61" y1="154" x2="92" y2="154" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <line x1="41" y1="179" x2="92" y2="179" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <text x="256" y="410" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">Y</text>
+</svg>`
+        };
+        
+        function generateIcon(type, size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                const dataURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `${type === 'favicon' ? 'favicon' : type}.png`;
+                link.href = dataURL;
+                link.click();
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgStrings[type]);
+        }
+        
+        function generateAllIcons() {
+            generateIcon('favicon', 32);
+            setTimeout(() => generateIcon('logo192', 192), 500);
+            setTimeout(() => generateIcon('logo512', 512), 1000);
+        }
+        
+        // Mostrar previews
+        Object.keys(svgStrings).forEach(type => {
+            const img = document.getElementById(type);
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgStrings[type]);
+        });
+    </script>
+</body>
+</html>
